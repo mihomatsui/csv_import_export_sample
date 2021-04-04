@@ -3,12 +3,10 @@ class User < ApplicationRecord
   CSV_COLUMNS = %w[name age height].freeze
 
   def self.import_csv(file:)
-    # トランザクション(CSVインポートの途中でエラーが出た場合はロールバック)
-    User.transaction do
-      CSV.foreach(file.path, headers: true) do |row|
-        # インポートするカラムを制限
-        create!(row.to_h.slice(*CSV_COLUMNS))
-      end
+    list = []
+    CSV.foreach(file.path, headers: true) do |row|
+      list << row.to_h.slice(*CSV_COLUMNS)
     end
+    User.import!(list)
   end
 end
